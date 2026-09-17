@@ -55,6 +55,18 @@ open http://127.0.0.1:8765/
 
 Edit the text or the schema in the page and press **Run**. Supported field types: `string` with `enum`, `boolean`, `string` (with `maxLength`), `integer`, `number`. Nested objects and arrays are refused on purpose.
 
+What you will see, on the default example:
+
+![The task: a text and a flat schema](docs/media/1_task.png)
+
+![Generate JSON: the exact request, one pass to read, one pass per written token, what the grammar allowed](docs/media/2_generate_json.png)
+
+![Read the letter: one question per field on a shared prefix, the top next tokens, the letter scores](docs/media/3_read_the_letter.png)
+
+![Compare: answers side by side and what each method cost](docs/media/4_compare.png)
+
+Hover any written token in the page to see the five tokens the model considered at that step, which of them the grammar blocked, and the best tokens it allowed.
+
 ## Reproduce the experiment
 
 ```bash
