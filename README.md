@@ -37,6 +37,8 @@ Everything here runs on `Qwen/Qwen3-4B-Instruct-2507` (bf16, greedy) with [xgram
 | **free text** | generate | nothing to read | — |
 | **many fields on one long text** | read letters with a shared prefix (server-side prefix caching does this for you) | re-reading a 2048-token text per field costs more than one JSON; the cache brings it back to 0.4–0.7× | the shared part must be byte-identical: put the question *after* the text |
 
+In TypeSafe's own vocabulary ([agent skill](https://docs.typesafe.ai/agent-skill)): their **Choice** and **Noul** primitives are what this study measures on a frozen model, as the letter read and the boolean; **Score** (an ordered scale) was not measured; their pattern *select over generate* is the extraction-as-choice recommendation above, also not measured here. This is a correspondence of terms, not a reproduction of their model.
+
 Rule of thumb from the whole study: **on this model, quality is the same either way for closed choices; the single lever that changed accuracy was giving the model a one-token identifier to answer with.** Reading the logits then removes the decode cost and hands you a distribution.
 
 ## Try it: the teaching bench
