@@ -1,0 +1,30 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='620' height='250' viewBox='0 0 620 250'><rect width='620' height='250' fill='#ffffff'/><text x='30.0' y='22.0' font-size='14' fill='#1d1f23' text-anchor='start' font-weight='600' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>Answering with a letter vs writing the option name, same question, run b1</text>
+<text x='30.0' y='38.0' font-size='11' fill='#b3372e' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>PROVISIONAL: the name-writing arm is being re-measured after a harness fix (see article §6); the letter arm is unaffected</text>
+<line x1='130.0' y1='55.0' x2='130.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='130.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>0.5</text>
+<line x1='216.0' y1='55.0' x2='216.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='216.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>0.6</text>
+<line x1='302.0' y1='55.0' x2='302.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='302.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>0.7</text>
+<line x1='388.0' y1='55.0' x2='388.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='388.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>0.8</text>
+<line x1='474.0' y1='55.0' x2='474.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='474.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>0.9</text>
+<line x1='560.0' y1='55.0' x2='560.0' y2='205.0' stroke='#c9c5bc' stroke-width='1' stroke-dasharray='2,3'/>
+<text x='560.0' y='220.0' font-size='10' fill='#6b6f76' text-anchor='middle' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>1.0</text>
+<text x='120.0' y='80.0' font-size='12' fill='#1d1f23' text-anchor='end' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>intent</text>
+<rect x='130.0' y='62.0' width='264.9' height='13.0' fill='#c9c5bc' rx='2' opacity='1.0'/>
+<text x='400.9' y='73.0' font-size='10' fill='#6b6f76' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>name 0.808</text>
+<rect x='130.0' y='78.0' width='350.9' height='13.0' fill='#d97b27' rx='2' opacity='1.0'/>
+<text x='486.9' y='89.0' font-size='10' fill='#d97b27' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>letter 0.908  Δ +10.0 pp [+8.4, +11.8], n=2250</text>
+<text x='120.0' y='132.0' font-size='12' fill='#1d1f23' text-anchor='end' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>domain</text>
+<rect x='130.0' y='114.0' width='65.4' height='13.0' fill='#c9c5bc' rx='2' opacity='1.0'/>
+<text x='201.4' y='125.0' font-size='10' fill='#6b6f76' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>name 0.576</text>
+<rect x='130.0' y='130.0' width='179.3' height='13.0' fill='#d97b27' rx='2' opacity='1.0'/>
+<text x='315.3' y='141.0' font-size='10' fill='#d97b27' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>letter 0.708  Δ +13.2 pp [+11.4, +15.2], n=2250</text>
+<text x='120.0' y='184.0' font-size='12' fill='#1d1f23' text-anchor='end' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>boolean</text>
+<rect x='130.0' y='166.0' width='376.6' height='13.0' fill='#c9c5bc' rx='2' opacity='1.0'/>
+<text x='512.6' y='177.0' font-size='10' fill='#6b6f76' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>name 0.938</text>
+<rect x='130.0' y='182.0' width='386.5' height='13.0' fill='#d97b27' rx='2' opacity='1.0'/>
+<text x='522.5' y='193.0' font-size='10' fill='#d97b27' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>letter 0.949  Δ +1.2 pp [-0.1, +2.4], n=869</text>
+<text x='30.0' y='242.0' font-size='10' fill='#6b6f76' text-anchor='start' font-weight='normal' font-family='-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'>accuracy, exact match</text></svg>

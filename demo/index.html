@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schema Answer Bench</title>
+<style>
+  :root{
+    --bg:#f7f6f2; --ink:#1d1f23; --mute:#6b6f76; --line:#dedbd3; --card:#ffffff;
+    --acc:#1f5f8b; --acc2:#d97b27; --ok:#2f7d4f; --bad:#b3372e; --soft:#eef3f7; --soft2:#fdf3e8;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px 20px 80px}
+  h1{font-size:24px;margin:0 0 6px;font-weight:650;letter-spacing:-.01em}
+  .sub{color:var(--mute);margin:0 0 20px;font-size:14px;max-width:100ch}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:0 0 6px}
+  textarea{width:100%;min-height:180px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:13.5px/1.5 var(--mono);background:var(--card);color:var(--ink);resize:vertical;overflow:hidden}
+  #schema{min-height:340px}
+  .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:12px 0 26px}
+  button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:15px;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.5;cursor:default}
+  input[type=number]{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:14px;background:var(--card)}
+  .status{color:var(--mute);font-size:13.5px}
+  /* lesson layout: explanation on the left, live evidence on the right */
+  .lesson{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:0 0 18px}
+  .lesson .head{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+  .lesson .num{font-family:var(--mono);font-size:12px;color:var(--acc);border:1px solid var(--acc);border-radius:20px;padding:1px 9px;letter-spacing:.06em}
+  .lesson h2{font-size:18px;margin:0;font-weight:650}
+  .lesson .body{display:grid;grid-template-columns:minmax(260px,34ch) 1fr;gap:26px;align-items:start}
+  @media (max-width:980px){.lesson .body{grid-template-columns:1fr}}
+  .explain{font-size:14px;color:#33363c}
+  .explain p{margin:0 0 10px}
+  .explain .key{border-left:3px solid var(--acc2);padding:6px 10px;background:var(--soft2);border-radius:0 6px 6px 0;margin:10px 0}
+  .evidence h3{font-size:12px;margin:14px 0 6px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .evidence h3:first-child{margin-top:0}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  td.num,th.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .mono{font-family:var(--mono);font-size:12.5px}
+  .bar{position:relative;height:16px;background:var(--soft);border-radius:4px;overflow:hidden;min-width:120px}
+  .bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:4px}
+  .bar>i.dec{background:var(--acc2)}
+  .opt{display:grid;grid-template-columns:28px 1fr 220px 64px;gap:10px;align-items:center;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .opt:last-child{border-bottom:0}
+  .opt .L{font-family:var(--mono);font-weight:700;color:var(--acc)}
+  .opt.top .L{color:var(--ok)}
+  .opt.top .name{font-weight:650}
+  .opt .p{font-variant-numeric:tabular-nums;text-align:right;color:var(--mute)}
+  .opt.top .p{color:var(--ok);font-weight:650}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .chip{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:2px 6px;background:#fff;white-space:pre}
+  .chip.letter{border-color:var(--acc);color:var(--acc);font-weight:700}
+  .chip.bite{border-color:var(--bad);background:#fdf1ef}
+  .chip small{display:block;color:var(--mute);font-size:10px;line-height:1.1;margin-top:2px;white-space:nowrap}
+  .ans{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
+  .ans span{border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:13.5px;background:#fff}
+  .ans span b{color:var(--mute);font-weight:600;margin-right:6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .ans span.diff{border-color:var(--acc2);background:var(--soft2)}
+  .tl{display:flex;height:22px;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:#fff}
+  .tl>i{display:block;height:100%}
+  .tl>i.pf{background:var(--acc)} .tl>i.dc{background:var(--acc2);border-left:1px solid rgba(255,255,255,.6)}
+  .legend{color:var(--mute);font-size:12.5px;margin-top:4px}
+  .legend b{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+  .pre{font-family:var(--mono);font-size:12px;white-space:pre-wrap;background:#fbfaf7;border:1px solid var(--line);border-radius:6px;padding:10px;max-height:300px;overflow:auto}
+  .pre mark{background:#dbe9f5;color:inherit;padding:0}
+  .pre mark.tail{background:#fbe3cf}
+  .pre mark.q{background:#e6f1ea}
+  .note{color:var(--mute);font-size:13px;margin:6px 0 0}
+  .err{color:var(--bad);white-space:pre-wrap}
+  .kpi{display:flex;gap:22px;flex-wrap:wrap;margin:6px 0 4px}
+  .kpi div{min-width:110px}
+  .kpi b{display:block;font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+  .kpi span{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  .field{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
+  .field:first-of-type{border-top:0;padding-top:0;margin-top:0}
+  .field h4{margin:0 0 6px;font-size:15px;font-weight:650}
+  .field h4 small{color:var(--mute);font-weight:400;font-size:13px}
+  dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:14px}
+  dt{font-weight:650}
+  dd{margin:0;color:#33363c}
+  .ok{color:var(--ok);font-weight:650} .warn{color:var(--bad);font-weight:650}
+  .pbar{height:10px;background:var(--soft);border-radius:6px;overflow:hidden;margin:-10px 0 18px;max-width:560px}
+  .pbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s ease}
+  .pbar>i.pulse{animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+  .json{font-family:var(--mono);font-size:12.5px;white-space:pre;background:#f1f7f3;border:1px solid #cfe3d5;border-radius:6px;padding:8px 10px;margin:4px 0;overflow-x:auto}
+  .json .k{color:#1f5f8b} .json .s{color:#2f7d4f} .json .n{color:#b3541e} .json .b{color:#7a3e9d} .json .z{color:var(--mute)}
+  .q{display:inline-block;width:15px;height:15px;line-height:15px;text-align:center;border-radius:50%;border:1px solid var(--acc);color:var(--acc);font-size:10.5px;font-weight:700;cursor:help;vertical-align:1px;margin-left:3px;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:0;text-transform:none}
+  .q:hover{background:var(--acc);color:#fff}
+  #tip .help{font-size:13px;color:var(--ink);line-height:1.45}
+  .chip.hov{cursor:help}
+  .chip.hov:hover{border-color:var(--acc);background:var(--soft)}
+  #tip{position:fixed;z-index:10;display:none;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.12);padding:10px 12px;min-width:260px;max-width:340px;font-size:12.5px}
+  #tip h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+  #tip .alt{display:grid;grid-template-columns:1fr 90px 44px;gap:8px;align-items:center;padding:2px 0}
+  #tip .alt .tk{font-family:var(--mono);white-space:pre}
+  #tip .alt.chosen .tk{color:var(--ok);font-weight:700}
+  #tip .alt.blocked .tk{color:var(--bad);text-decoration:line-through}
+  #tip .alt.blocked .bar>i{background:#e3b4ae}
+  #tip .alt .bar{height:8px;min-width:0}
+  #tip .alt .v{font-variant-numeric:tabular-nums;text-align:right;color:var(--mute)}
+  #tip .meta{color:var(--mute);margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
+  details{margin:6px 0}
+  summary{cursor:pointer;font-size:13px;color:var(--acc);font-weight:600}
+  .resp{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:#f1f7f3;border:1px solid #cfe3d5;border-radius:6px;padding:8px 10px;margin:4px 0}
+  .methods{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media (max-width:900px){.methods{grid-template-columns:1fr}}
+  .methods div{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fbfaf7}
+  .methods b{display:block;font-size:15px}
+  .methods span{display:block;color:var(--acc2);font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin:2px 0 6px}
+  .methods p{margin:0;font-size:13.5px;color:#33363c}
+</style>
+</head>
+<body>
+<h1>Schema Answer Bench</h1>
+
+<section class="lesson" style="padding:16px 22px">
+  <div class="head"><span class="num">≡</span><h2>What is compared</h2></div>
+  <div class="methods">
+    <div><b>Generate JSON</b><span>today's way</span><p>The model writes the whole JSON, token by token.</p></div>
+    <div><b>Read the letter</b><span>under test</span><p>One lettered question per field. The answer is read from the logits, not written.</p></div>
+  </div>
+</section>
+
+<div class="grid">
+  <div>
+    <label for="text">Text</label>
+    <textarea id="text">Hi, this is Marina from room 3. The patient is bleeding heavily after a tooth extraction and we cannot stop it, we need a doctor right now. Please call me back on 555-0102, there are 4 more people waiting in the queue.</textarea>
+  </div>
+  <div>
+    <label for="schema">Answer schema (flat JSON schema: enum, boolean, string, integer)</label>
+    <textarea id="schema">{
+  "type": "object",
+  "properties": {
+    "topic": {"type": "string", "enum": ["bleeding", "pain", "appointment", "billing", "equipment", "other"],
+              "description": "What is the message mainly about?"},
+    "urgency": {"type": "string", "enum": ["low", "medium", "high"],
+                "description": "How urgent is the request?"},
+    "needs_callback": {"type": "boolean", "description": "the caller asks to be called back"},
+    "callback_phone": {"type": "string", "maxLength": 20, "description": "phone number to call back, exactly as written"},
+    "people_waiting": {"type": "integer", "description": "how many people are waiting in the queue"}
+  }
+}</textarea>
+  </div>
+</div>
+<div class="row">
+  <button id="run">Run</button>
+  <span title="Answers do not change between runs (greedy decoding). Extra runs only make the time a median.">timing runs <input id="repeats" type="number" min="1" max="5" value="1" style="width:56px"></span>
+  <span class="status" id="status"></span>
+</div>
+<div id="prog" hidden><div class="pbar"><i id="pfill"></i></div><div class="note"><span id="ppct">0%</span> · <span id="pstage"></span></div></div>
+
+<div id="out"></div>
+<div id="tip"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+// Textareas grow to fit their content, so the whole schema is visible without scrolling inside the box.
+function fit(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+4)+'px'; }
+for (const el of document.querySelectorAll('textarea')){ el.addEventListener('input', ()=>fit(el)); fit(el); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const vis = s => esc(s).replace(/ /g,'␣').replace(/\n/g,'⏎');
+const fmtS = x => (x==null? '—' : (x>=10? x.toFixed(1) : x.toFixed(2)) + ' s');
+const J = v => v===undefined? '—' : JSON.stringify(v);
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+$('#run').onclick = async () => {
+  const btn = $('#run'); btn.disabled = true;
+  $('#status').textContent = 'running…';
+  $('#out').innerHTML = '';
+  $('#prog').hidden = false; $('#pfill').style.width = '2%'; $('#pfill').classList.add('pulse'); $('#ppct').textContent = '0%'; $('#pstage').textContent = 'starting';
+  const poll = setInterval(async () => {
+    try { const p = await (await fetch('/progress')).json();
+      const pct = p.total ? Math.min(99, Math.round(100*p.done/p.total)) : 0;
+      $('#pfill').style.width = Math.max(2, pct) + '%'; $('#ppct').textContent = pct + '%'; $('#pstage').textContent = p.stage; } catch(e) {}
+  }, 400);
+  let schema; try { schema = JSON.parse($('#schema').value); } catch(e){ $('#status').innerHTML = '<span class="err">the schema is not valid JSON: '+esc(e.message)+'</span>'; btn.disabled=false; return; }
+  const t0 = performance.now();
+  try {
+    const r = await fetch('/run', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text: $('#text').value, schema, repeats: +$('#repeats').value, with_labels: false})});
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || r.statusText);
+    clearInterval(poll); $('#pfill').classList.remove('pulse'); $('#pfill').style.width = '100%'; $('#ppct').textContent = '100%'; $('#pstage').textContent = 'done'; setTimeout(()=>{ $('#prog').hidden = true; }, 900);
+    render(d);
+    $('#status').textContent = `done in ${((performance.now()-t0)/1000).toFixed(0)} s · ${d.model} (${d.revision}) · ${d.device} · ${d.mode}`;
+  } catch(e) { clearInterval(poll); $('#prog').hidden = true; $('#status').innerHTML = '<span class="err">'+esc(e.message)+'</span>'; }
+  btn.disabled = false;
+};
+
+function lesson(num, title, explain, evidence){
+  return `<section class="lesson"><div class="head"><span class="num">${num}</span><h2>${title}</h2></div><div class="body"><div class="explain">${explain}</div><div class="evidence">${evidence}</div></div></section>`;
+}
+
+function render(d){
+  const A = d.arms, out = [];
+  const choice = d.fields.filter(f => f.kind==='enum' || f.kind==='boolean');
+  const free = d.fields.filter(f => !(f.kind==='enum' || f.kind==='boolean'));
+  const j = A.json, sp = A.split;
+
+  // ================= Method 1: Generate JSON =================
+  {
+    const bites = j.steps.filter(s=>s.bite).length;
+    let ev = `<h3>1 · The request</h3>` + reqBox('Generate JSON', j.prompt, j.prompt_tokens, j.constraint);
+    ev += `<h3>2 · Reading, then writing one token per pass</h3>` + timeline(j);
+    ev += tokenStream(j, '3 · What it wrote · number = tokens the grammar allowed · red = grammar overrode the model');
+    ev += `<h3>4 · Exact response</h3><div class="note">${j.gen_tokens} tokens, ${fmtS(j.wall)} this run · raw text, pretty-printed</div>` + prettyJSON(j.text);
+    ev += `<div class="kpi"><div><b>${j.prompt_tokens}</b><span>tokens read ${Q('Tokens in the prompt. All of them are processed in one parallel pass (the prefill).')}</span></div><div><b>${j.gen_tokens}</b><span>tokens written ${Q('Tokens the model generated, one per pass. Each one is a full run through the model.')}</span></div><div><b>${bites}</b><span>grammar overrides ${Q('Steps where the token the model wanted most was not allowed by the grammar, so the best allowed token was written instead.')}</span></div><div><b>${fmtS(j.wall_median)}</b><span>time ${Q(d.repeats>1?`Median over ${d.repeats} runs on this machine.`:'One run on this machine, one request at a time.')}</span></div></div>`;
+    if (j.state!=='ok') ev += `<p class="err">${esc(j.state)}</p>`;
+    out.push(lesson('A', 'Generate JSON', `
+      <p>The request has two parts: the prompt text (fields and options in words) and the schema, compiled into a grammar that filters every step.</p>
+      <p>The model reads once, then writes <b>one token per pass</b>.</p>
+      <div class="key">Every written token is another full pass through the model.</div>`, ev));
+  }
+
+  // ================= Method 2: Read the letter =================
+  {
+    let ev = '';
+    if (sp.prefix_text){
+      const tails = sum(sp.tail_tokens);
+      ev += `<h3>1 · One question per field · shared beginning (blue, ${sp.prefix_tokens} tokens) + tails (orange, ${sp.tail_tokens.join(' / ')} tokens)</h3><div class="pre"><mark>${esc(sp.prefix_text)}</mark>`;
+      ev += sp.tails_text.map(t=>`\n\n<mark class="tail">${esc(t)}</mark>`).join('') + `</div>`;
+      ev += `<h3>2 · The shared beginning is read once</h3><div class="kpi"><div><b>${sp.prefix_tokens + tails}</b><span>tokens read ${Q('The shared beginning once, plus every tail. The KV cache of the beginning is reused for each question.')}</span></div><div><b>${sp.prefix_tokens*sp.tail_tokens.length + tails}</b><span>without the cache ${Q('What would be read if each question were sent as a full separate request: the beginning once per question.')}</span></div><div><b>${fmtS(sp.wall_letters)}</b><span>all letters, one pass ${Q('Time to read the beginning and all tails and take the letter scores. No token is generated.')}</span></div></div>`;
+    }
+    let n = 3;
+    for (const f of choice){
+      const x = sp.fields[f.name];
+      const order = x.p.map((p,i)=>i).sort((a,b)=>x.p[b]-x.p[a]);
+      ev += `<div class="field"><h4>${esc(f.name)} <small>· ${esc(f.desc)}</small></h4>`;
+      ev += reqBox('Read the letter', x.request, sp.prefix_tokens + x.tail_tokens);
+      ev += `<h3>${n} · Top 10 next tokens at ANSWER: <span style="text-transform:none;letter-spacing:0;font-weight:400">· number under each token = its logit, higher is more likely · blue = an option letter</span></h3><div class="chips">`;
+      for (const t of x.top_vocab) ev += `<span class="chip ${t.is_letter?'letter':''}">${vis(t.tok)}<small>${t.logit.toFixed(1)}</small></span>`;
+      ev += `</div><p class="note">Top token: <b class="${x.argmax_class==='bare_candidate'?'ok':'warn'}">${x.argmax_class==='bare_candidate'?'an option letter ✓':esc(x.argmax_class)}</b> ${Q('The single most likely next token over the whole vocabulary. When it is one of the option letters, the model was going to answer with a letter anyway, so reading and generating agree.')} · mass on the ${f.options.length} letters: <b>${(100*x.cand_mass).toFixed(4)}%</b> ${Q(`Share of the model's whole next-token probability that falls on the ${f.options.length} option letters together. 100% means everything else in the vocabulary is negligible; a low value would mean the model wanted to say something other than a letter.`)}</p>`;
+      ev += `<h3>${n+1} · Keep the letters, normalize, take the largest ${Q('Only the option letters are kept. Their logits go through softmax, so the shares sum to 100%. This ranks the options; it is not a calibrated probability of being right.')}</h3>`;
+      for (const i of order){
+        ev += `<div class="opt ${i===order[0]?'top':''}"><span class="L">${String.fromCharCode(65+i)}</span><span class="name">${esc(f.options[i])} <span class="note" style="display:inline">logit ${x.logits[i].toFixed(2)}</span></span><div class="bar"><i style="width:${(100*x.p[i]).toFixed(1)}%"></i></div><span class="p">${(100*x.p[i]).toFixed(1)}%</span></div>`;
+      }
+      ev += respBox('Exact response: nothing generated · the letter read from the logits', x.letter + '  →  ' + J(x.answer));
+      ev += `<p class="note">Confidence gap: <b>${x.gap.toFixed(2)}</b>${x.tie?' · tie':''} ${Q('How far the best letter is ahead of the second best, in logits. Large = a clear choice. Small = the model is torn; that is the signal to route to a human.')}</p></div>`;
+      n += 2;
+    }
+    for (const f of free){
+      const x = sp.fields[f.name];
+      ev += `<div class="field"><h4>${esc(f.name)} <small>· ${f.kind} · no options, so this one is written</small></h4>`;
+      ev += reqBox('Single-field generation', x.gen.prompt, x.gen.prompt_tokens, x.gen.constraint);
+      ev += tokenStream(x.gen, `${n} · Written under a single-field grammar · ${x.gen.gen_tokens} written, ${fmtS(x.gen.wall)}`);
+      ev += `<div class="note" style="margin-top:8px">Exact response</div>` + prettyJSON(x.gen.text) + `</div>`;
+      n += 1;
+    }
+    ev += `<h3>${n} · Result</h3>` + prettyJSON(JSON.stringify(sp.answer));
+    ev += `<div class="kpi"><div><b>${sp.read_tokens}</b><span>tokens read</span></div><div><b>${sp.written_tokens}</b><span>tokens written</span></div><div><b>${fmtS(sp.wall_median)}</b><span>time ${Q('The pieces (letters, each written field) are independent, so a server runs them concurrently and pays the longest one. This is that figure. The bench actually ran them one after another; that sum is next to it.')}</span></div><div><b>${fmtS(sp.wall_sequential_median)}</b><span>if run one by one</span></div></div>`;
+    out.push(lesson('B', 'Read the letter', `
+      <p>One lettered question per field. Everything before <b>QUESTION:</b> is identical, so it is computed once and kept.</p>
+      <p>At <b>ANSWER:</b> the model holds a score for every next token. Keep the option letters, normalize, take the largest. Nothing is written.</p>
+      <div class="key">The shares rank options; the gap is the confidence signal. Not calibrated probabilities.</div>
+      <p>Strings and numbers have no options, so they are still written.</p>
+      <p>Why a letter and not the option's name? A name is several tokens and long names lose to short ones token by token; a one-token identifier avoids that.</p>`, ev));
+  }
+
+  // ================= Compare =================
+  {
+    const cols = [['Generate JSON', f => j.answer ? j.answer[f.name] : undefined], ['Read the letter', f => (sp.fields[f.name]||{}).answer]];
+    let ev = `<h3>Answers ${Q('The same field answered by each method. Orange = differs from Generate JSON.')}</h3><table><tr><th>field</th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr>`;
+    for (const f of d.fields){
+      const vals = cols.map(c => c[1](f)); const ref = J(vals[0]);
+      ev += `<tr><td>${esc(f.name)}</td>${vals.map(v => v===undefined ? `<td class="note">n/a</td>` : `<td class="mono ${J(v)!==ref ? 'warn':''}">${esc(J(v))}</td>`).join('')}</tr>`;
+    }
+    ev += `</table>`;
+    const arms = [['Generate JSON', j], ['Read the letter', sp]];
+    const maxW = Math.max(...arms.map(a=>a[1].wall_median));
+    ev += `<h3>Cost</h3><table><tr><th>method</th><th class="num">time ${Q(d.repeats>1?`Median over ${d.repeats} runs.`:'One run; set timing runs above 1 for a median.')}</th><th style="width:26%">vs slowest</th><th class="num">tokens read ${Q('Prompt tokens processed, all methods. For Read the letter this includes the shared beginning once and every tail.')}</th><th class="num">written ${Q('Generated tokens. Read the letter writes only for string and number fields.')}</th></tr>`;
+    for (const [name,a] of arms) ev += `<tr><td><b>${name}</b></td><td class="num">${fmtS(a.wall_median)}${name==='Read the letter'?`<div class="note">concurrent pieces · one by one ${fmtS(a.wall_sequential_median)}</div>`:''}${a.walls.length>1?`<div class="note">${a.walls.map(x=>x.toFixed(2)).join(' · ')}</div>`:''}</td><td><div class="bar"><i style="width:${(100*a.wall_median/maxW).toFixed(1)}%"></i></div></td><td class="num">${a.read_tokens}${name==='Read the letter'?` <span class="note" style="display:inline">(${a.read_tokens_no_cache} without the cache)</span>`:''}</td><td class="num">${a.written_tokens}</td></tr>`;
+    ev += `</table>`;
+    out.push(lesson('=', 'Compare', `
+      <p>Orange answers differ from Generate JSON.</p>
+      <p>Times: ${d.repeats>1?`median of ${d.repeats} runs, `:''}this machine, one request at a time.</p>
+      <div class="key">Same accuracy on closed choices; no writing cost; long texts need the shared beginning.</div>`, ev));
+  }
+
+  // ================= glossary =================
+  out.push(`<section class="lesson"><div class="head"><span class="num">?</span><h2>Words</h2></div><dl>
+    <dt>logit</dt><dd>Raw score for "this token comes next".</dd>
+    <dt>reading (prefill)</dt><dd>The whole request in one parallel pass.</dd>
+    <dt>writing (decode step)</dt><dd>One more token, one more full pass.</dd>
+    <dt>grammar</dt><dd>Removes tokens that would break the format.</dd>
+    <dt>KV cache</dt><dd>Kept results of tokens already read.</dd>
+    <dt>normalized score</dt><dd>A letter's share among the option letters. A ranking, not a calibrated probability.</dd>
+  </dl></section>`);
+
+  $('#out').innerHTML = out.join('');
+}
+
+function prettyJSON(text){
+  // Pretty-print and colour a JSON string; if it is not valid JSON, return it escaped as is.
+  let v; try { v = JSON.parse(text); } catch(e) { return `<div class="resp">${esc(text)}</div>`; }
+  const col = s => esc(s)
+    .replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)/g, '<span class="k">$1</span>$2')
+    .replace(/:(\s*)(&quot;(?:[^&]|&(?!quot;))*?&quot;)/g, ':$1<span class="s">$2</span>')
+    .replace(/:(\s*)(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi, ':$1<span class="n">$2</span>')
+    .replace(/:(\s*)(true|false)\b/g, ':$1<span class="b">$2</span>')
+    .replace(/:(\s*)(null)\b/g, ':$1<span class="z">$2</span>');
+  return `<div class="json">${col(JSON.stringify(v, null, 2))}</div>`;
+}
+function reqBox(label, text, ntok, constraint){
+  let h = `<details><summary>${label} · exact request: prompt text (${ntok} tokens)${constraint?' + decoding constraint':' · no constraint, nothing is generated'}</summary><div class="note">Prompt text, byte for byte. The schema is in it, rendered in words: the FIELDS list with names, descriptions and allowed options.</div><div class="pre">${esc(text)}</div>`;
+  if (constraint) h += `<div class="note">The same schema once more, as the decoding constraint handed to the grammar engine (${constraint.kind === 'json_schema' ? 'JSON schema document' : 'EBNF'}). It is not in the text; it filters what the model may write.</div>${constraint.kind === 'json_schema' ? prettyJSON(constraint.text) : `<div class="pre">${esc(constraint.text)}</div>`}`;
+  return h + `</details>`;
+}
+function respBox(label, text){
+  return `<div class="note" style="margin-top:8px">${label}</div><div class="resp">${esc(text)}</div>`;
+}
+function markPrompt(p){
+  // highlight the question / field list part of a JSON request
+  const i = p.indexOf('FIELDS (');
+  if (i<0) return esc(p);
+  return esc(p.slice(0,i)) + `<mark class="q">${esc(p.slice(i))}</mark>`;
+}
+
+function timeline(g){
+  const pf = g.prefill_ms || 0, dec = g.decode_ms || [];
+  const tot = pf + sum(dec);
+  let h = `<div class="tl"><i class="pf" style="width:${(100*pf/tot).toFixed(2)}%" title="reading ${pf} ms"></i>`;
+  for (const ms of dec) h += `<i class="dc" style="width:${(100*ms/tot).toFixed(2)}%" title="${ms} ms"></i>`;
+  h += `</div><div class="legend"><b style="background:var(--acc)"></b>reading the request ${Math.round(pf)} ms ${Q('The prefill: the whole prompt goes through the model in one parallel pass.')} &nbsp; <b style="background:var(--acc2)"></b>writing: ${dec.length} steps, ${Math.round(sum(dec))} ms, ${dec.length?(sum(dec)/dec.length).toFixed(0):0} ms per token on average ${Q('Decoding: one full pass per generated token, strictly one after another. Each orange slice is one token.')}</div>`;
+  return h;
+}
+
+const STREAMS = [];
+const Q = text => `<span class="q" data-help="${esc(text)}">?</span>`;
+function tokenStream(g, title){
+  if (!g) return '';
+  const id = STREAMS.push(g.steps) - 1;
+  let h = `<h3>${title}</h3><div class="chips">`;
+  g.steps.forEach((s, i) => {
+    h += `<span class="chip hov ${s.bite?'bite':''}" data-s="${id}:${i}">${vis(s.chosen||'')}${s.bite?`<small>✗ wanted ${vis(s.wanted)}</small>`:''}</span>`;
+  });
+  h += `</div><p class="note">Hover a token to see what else the model considered. Red = the grammar overrode the model's choice. ${g.finish==='length'?'<span class="err">Cut off by the token cap.</span>':'Closed with end-of-sequence.'}</p>`;
+  return h;
+}
+// hover card: the model's top candidates at that step, before the grammar
+const tip = document.getElementById('tip');
+document.addEventListener('mouseover', e => {
+  const q = e.target.closest('.q');
+  if (q){ tip.innerHTML = `<div class="help">${esc(q.dataset.help)}</div>`; tip.style.display='block'; const r=q.getBoundingClientRect(); const W=tip.offsetWidth,H=tip.offsetHeight; let x=r.left,y=r.bottom+8; if(x+W>window.innerWidth-12)x=window.innerWidth-W-12; if(y+H>window.innerHeight-12)y=r.top-H-8; tip.style.left=x+'px'; tip.style.top=y+'px'; return; }
+  const c = e.target.closest('.chip.hov'); if (!c) { tip.style.display='none'; return; }
+  const [id, i] = c.dataset.s.split(':').map(Number); const s = STREAMS[id][i];
+  const mx = Math.max(...s.raw_top.map(a=>a.logit)), mn = Math.min(...s.raw_top.map(a=>a.logit));
+  let h = `<h5>Top 5 tokens</h5>`;
+  for (const a of s.raw_top){
+    const w = mx===mn?100:100*(a.logit-mn+(mx-mn)*0.1)/((mx-mn)*1.1);
+    h += `<div class="alt ${a.tok===s.chosen?'chosen':''} ${a.allowed===false?'blocked':''}"><span class="tk">${vis(a.tok)}</span><div class="bar"><i style="width:${w.toFixed(0)}%"></i></div><span class="v">${a.logit.toFixed(1)}</span></div>`;
+  }
+  if (s.allowed_top && s.allowed_top.length){
+    h += `<h5 style="margin-top:10px">Top ${s.allowed_top.length} allowed by the grammar</h5>`;
+    for (const a of s.allowed_top){
+      const w = mx===mn?100:Math.max(4, 100*(a.logit-mn+(mx-mn)*0.1)/((mx-mn)*1.1));
+      h += `<div class="alt ${a.tok===s.chosen?'chosen':''}"><span class="tk">${vis(a.tok)}</span><div class="bar"><i style="width:${Math.min(100,w).toFixed(0)}%"></i></div><span class="v">${a.logit.toFixed(1)}</span></div>`;
+    }
+  }
+  h += `<div class="meta">green = written · <span style="color:var(--bad);text-decoration:line-through">red</span> = blocked by the grammar · logits before the grammar<br>grammar allowed ${s.allowed.toLocaleString()} of 151 936 tokens${s.ms!=null?` · step ${s.ms} ms`:''}</div>`;
+  tip.innerHTML = h; tip.style.display = 'block';
+  const r = c.getBoundingClientRect(); const W = tip.offsetWidth, H = tip.offsetHeight;
+  let x = r.left, y = r.bottom + 8; if (x + W > window.innerWidth - 12) x = window.innerWidth - W - 12; if (y + H > window.innerHeight - 12) y = r.top - H - 8;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
+</script>
+</body>
+</html>

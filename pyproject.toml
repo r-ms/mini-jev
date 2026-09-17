@@ -1,0 +1,23 @@
+[project]
+name = "minijev"
+version = "0.1.0"
+description = "mini-Jev PoC: runtime-schema decision scorer vs constrained JSON generation on one Qwen"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "torch==2.5.1",
+    "transformers==4.57.6",
+    "datasets==5.0.0",
+    "accelerate==1.14.0",
+    "xgrammar==0.2.7",
+    "numpy>=1.24,<2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["minijev"]
