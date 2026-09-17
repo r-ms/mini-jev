@@ -207,7 +207,7 @@ function render(d){
     const bites = j.steps.filter(s=>s.bite).length;
     let ev = `<h3>1 · The request</h3>` + reqBox('Generate JSON', j.prompt, j.prompt_tokens, j.constraint);
     ev += `<h3>2 · Reading, then writing one token per pass</h3>` + timeline(j);
-    ev += tokenStream(j, '3 · What it wrote · number = tokens the grammar allowed · red = grammar overrode the model');
+    ev += tokenStream(j, '3 · What it wrote, token by token · hover one for the alternatives · red = the grammar overrode the model');
     ev += `<h3>4 · Exact response</h3><div class="note">${j.gen_tokens} tokens, ${fmtS(j.wall)} this run · raw text, pretty-printed</div>` + prettyJSON(j.text);
     ev += `<div class="kpi"><div><b>${j.prompt_tokens}</b><span>tokens read ${Q('Tokens in the prompt. All of them are processed in one parallel pass (the prefill).')}</span></div><div><b>${j.gen_tokens}</b><span>tokens written ${Q('Tokens the model generated, one per pass. Each one is a full run through the model.')}</span></div><div><b>${bites}</b><span>grammar overrides ${Q('Steps where the token the model wanted most was not allowed by the grammar, so the best allowed token was written instead.')}</span></div><div><b>${fmtS(j.wall_median)}</b><span>time ${Q(d.repeats>1?`Median over ${d.repeats} runs on this machine.`:'One run on this machine, one request at a time.')}</span></div></div>`;
     if (j.state!=='ok') ev += `<p class="err">${esc(j.state)}</p>`;
@@ -338,7 +338,7 @@ function tokenStream(g, title){
   g.steps.forEach((s, i) => {
     h += `<span class="chip hov ${s.bite?'bite':''}" data-s="${id}:${i}">${vis(s.chosen||'')}${s.bite?`<small>✗ wanted ${vis(s.wanted)}</small>`:''}</span>`;
   });
-  h += `</div><p class="note">Hover a token to see what else the model considered. Red = the grammar overrode the model's choice. ${g.finish==='length'?'<span class="err">Cut off by the token cap.</span>':'Closed with end-of-sequence.'}</p>`;
+  h += `</div><p class="note">${g.finish==='length'?'<span class="err">Cut off by the token cap.</span>':'Closed with end-of-sequence.'}</p>`;
   return h;
 }
 // hover card: the model's top candidates at that step, before the grammar
