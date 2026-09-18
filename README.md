@@ -86,6 +86,8 @@ Arms: `B1` (read letters), `B1cache` (read letters on a shared prefix), `A1joint
 
 ## Repository layout
 
+**Run records on the Hub:** [`Mikhail/mini-jev-runs`](https://huggingface.co/datasets/Mikhail/mini-jev-runs) — 27 900 decisions with full candidate logits, normalized scores, confidence gaps and provenance hashes. Enough to study calibration and abstention rules without a GPU.
+
 ```
 README.md            this file
 docs/ARTICLE.md      the write-up, with figures
@@ -96,7 +98,7 @@ scripts/             run.py (all arms), run_cost.py, run_score.py, smoke_*.py, r
 analysis/            follow-up analyses (dependent fields, controls) and figures.py
 demo/                the teaching bench: server.py + index.html
 tests/               29 guards for the harness
-runs/                run records (not committed; regenerate or ask)
+runs/                run records (not committed; regenerate, or take them from the Hub dataset above)
 ```
 
 ## Caveats, stated plainly
